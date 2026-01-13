@@ -104,3 +104,7 @@ Paperly uses native browser printing to generate PDF output.
 - Page breaks in preview correspond to actual print page breaks
 
 This ensures that what users see in Preview mode accurately reflects the final exported document.
+
+## Deployment
+
+Link - https://paperly-application.vercel.app/

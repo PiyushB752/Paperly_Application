@@ -2,7 +2,7 @@
 
 ## Overview
 
-Paperly is a prototype **Tiptap-based rich text editor with pagination**, built to help legal professionals visualize exactly how their documents will appear when printed or exported as PDF. The goal is to provide a **Google Docs / Microsoft Word–like page experience**, allowing users to see page boundaries, understand content flow across pages, and ensure formatting accuracy for official submissions such as USCIS filings. This implementation focuses on **print-accurate pagination**, using DOM-based content measurement to closely match the final printed output.
+Paperly is a **Tiptap-based rich text editor with pagination**, built to help legal professionals visualize exactly how their documents will appear when printed or exported as PDF. The goal is to provide a **Google Docs / Microsoft Word–like page experience**, allowing users to see page boundaries, understand content flow across pages, and ensure formatting accuracy for official submissions such as USCIS filings. This implementation focuses on **print-accurate pagination**, using DOM-based content measurement to closely match the final printed output.
 
 ## Features
 
@@ -13,6 +13,7 @@ Paperly is a prototype **Tiptap-based rich text editor with pagination**, built 
 - Bold, italic, underline, strikethrough
 - Bullet and numbered lists
 - Text alignment (left, center, right)
+- Tables (insert, add rows/columns, delete)
 - Undo / redo support
 
 ### Document Pagination

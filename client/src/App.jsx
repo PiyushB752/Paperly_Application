@@ -4,6 +4,10 @@ import Underline from '@tiptap/extension-underline'
 import Strike from '@tiptap/extension-strike'
 import { TextAlign } from '@tiptap/extension-text-align'
 import { Placeholder } from '@tiptap/extension-placeholder'
+import { Table } from '@tiptap/extension-table'
+import { TableRow } from '@tiptap/extension-table-row'
+import { TableCell } from '@tiptap/extension-table-cell'
+import { TableHeader } from '@tiptap/extension-table-header'
 import { EditorContent, useEditor } from '@tiptap/react'
 import './App.css';
 
@@ -30,8 +34,35 @@ function App(){
       Placeholder.configure({
         placeholder:"Start typing your document here...",
       }),
+      Table.configure({
+        resizable: true,
+        HTMLAttributes: {
+          class: 'document-table',
+        },
+      }),
+      TableRow.configure({
+        HTMLAttributes: {
+          class: 'table-row',
+        },
+      }),
+      TableHeader.configure({
+        HTMLAttributes: {
+          class: 'table-header',
+        },
+      }),
+      TableCell.configure({
+        HTMLAttributes: {
+          class: 'table-cell',
+        },
+      }),
     ],
     content:"",
+    editorProps: {
+      attributes: {
+        class: 'editor-content',
+        style: 'outline: none;',
+      },
+    },
   })
 
   useEffect(() => {
@@ -42,10 +73,10 @@ function App(){
       setContent(html)
     }
 
-    editor.on('update', handleUpdate)
+    editor.on('update',handleUpdate)
     
     return ()=>{
-      editor.off('update', handleUpdate)
+      editor.off('update',handleUpdate)
     }
   },[editor])
 
@@ -56,7 +87,7 @@ function App(){
 
     const pages = []
     const parser = new DOMParser()
-    const doc = parser.parseFromString(htmlContent, 'text/html')
+    const doc = parser.parseFromString(htmlContent,"text/html")
     const elements = Array.from(doc.body.children)
     
     let currentPageElements = []
@@ -70,11 +101,35 @@ function App(){
     tempDiv.style.padding = '0'
     tempDiv.style.margin = '0'
     tempDiv.style.visibility = 'hidden'
-    tempDiv.style.position = 'absolute'  
+    tempDiv.style.position = 'absolute'
+    tempDiv.style.left = '-9999px'
+    
+    const tableStyles = `
+      .document-table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 1em 0;
+        table-layout: fixed;
+      }
+      .document-table th, .document-table td {
+        border: 1px solid #d1d5db;
+        padding: 8px 12px;
+        min-width: 60px;
+      }
+      .document-table th {
+        background-color: #f9fafb;
+        font-weight: 600;
+      }
+    `
     
     for (const ele of elements) {
       const clonedElement = ele.cloneNode(true)
       tempDiv.innerHTML = ''
+      
+      const style = document.createElement('style')
+      style.textContent = tableStyles
+      tempDiv.appendChild(style)
+      
       tempDiv.appendChild(clonedElement)
       document.body.appendChild(tempDiv)
       
@@ -110,6 +165,22 @@ function App(){
     }
   },[isPreview,content])
 
+  const insertTable=()=>{
+    editor.chain().focus().insertTable({rows:3,cols:3,withHeaderRow:true}).run()
+  }
+
+  const addColumn=()=>{
+    editor.chain().focus().addColumnAfter().run()
+  }
+
+  const addRow=()=>{
+    editor.chain().focus().addRowAfter().run()
+  }
+
+  const deleteTable=()=>{
+    editor.chain().focus().deleteTable().run()
+  }
+
   const handlePrint=()=>{
     const printWindow = window.open('','_blank')
     printWindow.document.write(`
@@ -138,6 +209,20 @@ function App(){
           }
           .print-page:last-child{
             page-break-after: auto;
+          }
+          .document-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1em 0;
+          }
+          .document-table th, .document-table td {
+            border: 1px solid #d1d5db;
+            padding: 8px 12px;
+            text-align: left;
+          }
+          .document-table th {
+            background: #f9fafb;
+            font-weight: 600;
           }
         </style>
       </head>
@@ -213,7 +298,19 @@ function App(){
             <div className='divider' />
 
             <div className='tool_group'>
-              <div className='tool_label'>Align</div>
+              <div className='tool_label'>Table</div>
+              <div className='tool_buttons'>
+                <button onClick={insertTable}>Add Table</button>
+                <button onClick={addColumn} disabled={!editor.can().addColumnAfter()}>Add Col</button>
+                <button onClick={addRow} disabled={!editor.can().addRowAfter()}>Add Row</button>
+                <button onClick={deleteTable} disabled={!editor.can().deleteTable()}>Delete</button>
+              </div>
+            </div>
+
+            <div className='divider' />
+
+            <div className='tool_group'>
+              <div className='tool_label'>Text Align</div>
               <div className='tool_buttons'>
                 <button onClick={() => editor.chain().focus().setTextAlign('left').run()} className={editor.isActive({ textAlign: 'left' }) ? 'active' : ''}>⬅ Left</button>
                 <button onClick={() => editor.chain().focus().setTextAlign('center').run()} className={editor.isActive({ textAlign: 'center' }) ? 'active' : ''}>⬍ Center</button>
@@ -273,9 +370,7 @@ function App(){
                       </div>
                     </div>
                     {i<previewPages.length-1 && (
-                      <div className='page_break_indicator'>
-                        <div className='page_break_line' />
-                      </div>
+                      <div className='page_break_indicator' />
                     )}
                   </div>
                 ))}
